@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "FinSentinel",
+    "slug": "finsentinel",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.finsentinel.app"
+    },
+    "android": {
+      "package": "com.finsentinel.app"
+    },
+    "plugins": [
+      "expo-font"
+    ]
+  }
+}
