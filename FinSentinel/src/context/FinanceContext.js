@@ -1,8 +1,14 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import axios from 'axios';
+import Constants from 'expo-constants';
 import { useAuth } from './AuthContext';
 
-const API_URL = 'http://192.168.51.136:3000/api';
+const getApiUrl = () => {
+    const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost;
+    const localhost = debuggerHost?.split(':')[0];
+    return localhost ? `http://${localhost}:3000/api` : 'http://localhost:3000/api';
+};
+const API_URL = getApiUrl();
 
 const FinanceContext = createContext();
 

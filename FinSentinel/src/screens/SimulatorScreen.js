@@ -12,7 +12,7 @@ import Card from '../components/Card';
 import Input from '../components/Input';
 import Button from '../components/Button';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
-import { VictoryChart, VictoryLine, VictoryTheme, VictoryAxis, VictoryArea } from 'victory-native';
+// import { VictoryChart, VictoryLine, VictoryTheme, VictoryAxis, VictoryArea } from 'victory-native';
 
 const { width } = Dimensions.get('window');
 
@@ -284,7 +284,7 @@ const SimulatorScreen = () => {
 
                         {result.chartData && (
                             <Card title="Growth Projection">
-                                <VictoryChart
+                                {/* <VictoryChart
                                     width={width - 80}
                                     height={250}
                                     theme={VictoryTheme.material}
@@ -312,7 +312,8 @@ const SimulatorScreen = () => {
                                             },
                                         }}
                                     />
-                                </VictoryChart>
+                                </VictoryChart> */}
+                                <Text style={{ color: colors.text, textAlign: 'center' }}>Charts temporarily disabled</Text>
                             </Card>
                         )}
                     </>

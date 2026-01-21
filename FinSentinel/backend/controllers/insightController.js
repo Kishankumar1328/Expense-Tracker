@@ -19,18 +19,33 @@ exports.getInsights = (req, res) => {
             // Generate mock AI insights based on spending patterns
             const insights = generateInsights(expenses);
 
-            // Store insights in database
-            insights.forEach((insight) => {
-                db.run(
-                    'INSERT INTO ai_insights (user_id, title, description, type, recommendation) VALUES (?, ?, ?, ?, ?)',
-                    [userId, insight.title, insight.description, insight.type, insight.recommendation],
-                    (err) => {
-                        if (err) console.error('Error storing insight:', err);
-                    }
-                );
-            });
+            // Clear old insights before inserting new ones to prevent duplicates
+            db.run('DELETE FROM ai_insights WHERE user_id = ?', [userId], (deleteErr) => {
+                if (deleteErr) {
+                    console.error('Error clearing old insights:', deleteErr);
+                }
 
-            res.json(insights);
+                // Store insights in database
+                const insertPromises = insights.map((insight) => {
+                    return new Promise((resolve) => {
+                        db.run(
+                            'INSERT INTO ai_insights (user_id, title, description, type, recommendation) VALUES (?, ?, ?, ?, ?)',
+                            [userId, insight.title, insight.description, insight.type, insight.recommendation],
+                            (insertErr) => {
+                                if (insertErr) console.error('Error storing insight:', insertErr);
+                                resolve();
+                            }
+                        );
+                    });
+                });
+
+                Promise.all(insertPromises).then(() => {
+                    res.json({
+                        success: true,
+                        data: insights,
+                    });
+                });
+            });
         }
     );
 };
@@ -39,7 +54,13 @@ exports.getInsights = (req, res) => {
 const generateInsights = (expenses) => {
     const insights = [];
 
-    if (expenses.length === 0) {
+    if (!expenses || expenses.length === 0) {
+        insights.push({
+            title: 'Start Tracking',
+            description: 'Add your first expense to get personalized financial insights.',
+            type: 'info',
+            recommendation: 'Begin by logging your daily expenses to help us analyze your spending patterns.',
+        });
         return insights;
     }
 

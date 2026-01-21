@@ -51,5 +51,5 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 FinSentinel API server running on port ${PORT}`);
     console.log(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`🔗 Health check: http://localhost:${PORT}/api/health`);
-    console.log(`📱 Mobile access: http://192.168.51.136:${PORT}/api/health`);
+    console.log(`📱 Mobile access: http://10.0.250.162:${PORT}/api/health`);
 });

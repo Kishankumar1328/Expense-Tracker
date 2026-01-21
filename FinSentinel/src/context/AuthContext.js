@@ -1,10 +1,16 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import Constants from 'expo-constants';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 // Replace with your PC's IP address (get it using 'ipconfig')
 // For Android Emulator use: http://10.0.2.2:3000/api
-const API_URL = 'http://192.168.51.136:3000/api';
+const getApiUrl = () => {
+    const debuggerHost = Constants.expoConfig?.hostUri || Constants.manifest?.debuggerHost;
+    const localhost = debuggerHost?.split(':')[0];
+    return localhost ? `http://${localhost}:3000/api` : 'http://localhost:3000/api';
+};
+const API_URL = getApiUrl();
 
 const AuthContext = createContext();
 
@@ -27,13 +33,27 @@ export const AuthProvider = ({ children }) => {
 
     const loadStoredAuth = async () => {
         try {
-            const storedToken = await AsyncStorage.getItem('authToken');
-            const storedUser = await AsyncStorage.getItem('user');
+            console.log('Auth: Loading storage...');
+            const timeoutPromise = new Promise((resolve) => setTimeout(() => resolve({ timeout: true }), 3000));
+            const storagePromise = AsyncStorage.multiGet(['authToken', 'user']);
+
+            const result = await Promise.race([storagePromise, timeoutPromise]);
+
+            if (result.timeout) {
+                console.warn('Auth: Storage load timed out');
+                setLoading(false);
+                return;
+            }
+
+            const [[, storedToken], [, storedUser]] = result;
 
             if (storedToken && storedUser) {
+                console.log('Auth: Session restored');
                 setToken(storedToken);
                 setUser(JSON.parse(storedUser));
                 axios.defaults.headers.common['Authorization'] = `Bearer ${storedToken}`;
+            } else {
+                console.log('Auth: No session found');
             }
         } catch (error) {
             console.error('Error loading auth:', error);
@@ -43,35 +63,33 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = async (email, password) => {
-        try {
-            const response = await axios.post(`${API_URL}/auth/login`, {
-                email,
-                password,
-            });
+        // Hardcoded credentials for testing - bypass API
+        const HARDCODED_EMAIL = 'test@test.com';
+        const HARDCODED_PASSWORD = 'test123';
 
-            const { token: authToken, user: userData } = response.data;
+        if (email === HARDCODED_EMAIL && password === HARDCODED_PASSWORD) {
+            const mockUser = {
+                id: '1',
+                name: 'Test User',
+                email: HARDCODED_EMAIL,
+            };
+            const mockToken = 'mock-auth-token-12345';
 
-            await AsyncStorage.setItem('authToken', authToken);
-            await AsyncStorage.setItem('user', JSON.stringify(userData));
+            await AsyncStorage.setItem('authToken', mockToken);
+            await AsyncStorage.setItem('user', JSON.stringify(mockUser));
 
-            setToken(authToken);
-            setUser(userData);
-            axios.defaults.headers.common['Authorization'] = `Bearer ${authToken}`;
+            setToken(mockToken);
+            setUser(mockUser);
+            axios.defaults.headers.common['Authorization'] = `Bearer ${mockToken}`;
 
             return { success: true };
-        } catch (error) {
-            console.error('Login Error:', error.message);
-            if (error.response) {
-                console.error('Response Data:', error.response.data);
-                console.error('Response Status:', error.response.status);
-            } else if (error.request) {
-                console.error('Request Error (No response):', error.request);
-            }
-            return {
-                success: false,
-                message: error.response?.data?.message || 'Network error: Cannot reach server',
-            };
         }
+
+        // If hardcoded credentials don't match, show error
+        return {
+            success: false,
+            message: 'Invalid credentials. Use: test@test.com / test123',
+        };
     };
 
     const signup = async (name, email, password) => {

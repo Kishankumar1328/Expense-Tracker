@@ -1,7 +1,14 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const fs = require('fs');
 
-const dbPath = path.join(__dirname, '../database/finsentinel.db');
+const dbDir = path.join(__dirname, '../database');
+const dbPath = path.join(dbDir, 'finsentinel.db');
+
+// Ensure database directory exists
+if (!fs.existsSync(dbDir)) {
+    fs.mkdirSync(dbDir, { recursive: true });
+}
 
 const db = new sqlite3.Database(dbPath, (err) => {
     if (err) {

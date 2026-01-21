@@ -13,7 +13,7 @@ import { useAuth } from '../context/AuthContext';
 import { useFinance } from '../context/FinanceContext';
 import Card from '../components/Card';
 import { MaterialCommunityIcons as Icon } from '@expo/vector-icons';
-import { VictoryPie, VictoryChart, VictoryLine, VictoryTheme, VictoryAxis } from 'victory-native';
+// import { VictoryPie, VictoryChart, VictoryLine, VictoryTheme, VictoryAxis } from 'victory-native';
 import { format } from 'date-fns';
 
 const { width } = Dimensions.get('window');
@@ -355,7 +355,7 @@ const DashboardScreen = ({ navigation }) => {
                 {expenses.length > 0 && (
                     <Card title="Spending by Category" style={{ marginBottom: 16 }}>
                         <View style={{ alignItems: 'center', marginVertical: 16 }}>
-                            <VictoryPie
+                            {/* <VictoryPie
                                 data={getCategoryData()}
                                 width={width - 80}
                                 height={200}
@@ -369,7 +369,8 @@ const DashboardScreen = ({ navigation }) => {
                                         fontWeight: '600',
                                     },
                                 }}
-                            />
+                            /> */}
+                            <Text style={{ color: colors.text, padding: 20 }}>Chart Disabled for Debugging</Text>
                         </View>
                     </Card>
                 )}
